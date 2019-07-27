@@ -63,8 +63,8 @@ lock = asyncio.Lock()
 # status
 question_solving = False
 contest_solving = False
-contest_problem_num = 0;
-contest_solving_num = 0;
+contest_problem_num = 0
+contest_solving_num = 0
 problem = ''
 answer = ''
 others = []
