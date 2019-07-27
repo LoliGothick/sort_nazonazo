@@ -65,6 +65,7 @@ question_solving = False
 contest_solving = False
 contest_problem_num = 0
 contest_solving_num = 0
+contest_result = {}
 problem = ''
 answer = ''
 others = []
@@ -79,6 +80,8 @@ def hard_reset():
     contest_problem_num = 0
     global contest_solving_num
     contest_solving_num = 0
+    global contest_result
+    contest_result = {}
     global problem
     problem = ''
     global answer
@@ -235,12 +238,18 @@ async def contest_continue(message):
     global contest_solving
     global contest_problem_num
     global contest_solving_num
+    global contest_result
     if not contest_solving:
         return 
     if contest_problem_num > contest_solving_num:
         await run_question(message)
     else:
-        await message.channel.send(str(contest_problem_num) + '問連続の出題が終了しました。')
+        await message.channel.send()
+        contest_result_msg = '{}問連続の出題が終了しました。\n順位表:'.format(contest_problem_num)
+        for a, b in sorted(contest_result.items(), key=lambda x:x[1], reverse=True):
+            contest_result_msg += "\n" + a + ": " + str(b)
+        await message.channel.send(contest_result_msg)
+        contest_result = {}
         contest_problem_num = 0
         contest_solving_num = 0
         contest_solving = False
@@ -367,6 +376,8 @@ async def on_message(message):
     global problem
     global answer
     global lock
+    global contest_solving
+    global contest_result
     if message.author == client.user:
         return
     if message.channel.id != active_channel_id:
@@ -382,6 +393,9 @@ async def on_message(message):
                 problem = ''
                 answer = ''
                 others = []
+                if contest_solving:
+                    contest_result.setdefault(str(message.author), 0)
+                    contest_result[str(message.author)] += 1
                 await contest_continue(message)
             elif sorted(message.content) == sorted(problem) and not (message.content in others):
                 print('accept answer ' + message.content)
