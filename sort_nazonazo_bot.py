@@ -134,7 +134,7 @@ def cmd_problem_size(cmd):
 # 問題数を知るコマンド
 async def run_problem_size(message):
     global dictionary
-    await message.channel.send('全部で' + str(len(dictionary)) + '問あります')
+    await message.channel.send('全部で{}問あります'.format(len(dictionary)))
 
 # 問題を出題するコマンドのパース
 def cmd_question(cmd):
@@ -157,7 +157,7 @@ async def run_question(message):
         await message.channel.send('前回の出題が解かれていません\n問題: ' + problem)
         return
     elif contest_solving:
-        await message.channel.send('問 ' + str(contest_solving_num+1) + ' (' + str(contest_solving_num+1) + '/' + str(contest_problem_num) + ')')
+        await message.channel.send('問 {0} ({0}/{1})'.format(contest_solving_num+1, contest_problem_num))
         contest_solving_num += 1
     question_solving = True
     tmp = get_problem(dictionary)
@@ -187,7 +187,7 @@ async def run_extra_question(message):
         await message.channel.send('前回の出題が解かれていません\n問題: ' + problem)
         return
     elif contest_solving:
-        await message.channel.send('問 ' + str(contest_solving_num+1) + ' (' + str(contest_solving_num+1) + '/' + str(contest_problem_num) + ')')
+        await message.channel.send('問 {0} ({0}/{1})'.format(contest_solving_num+1, contest_problem_num))
         contest_solving_num += 1
     question_solving = True
     tmp = get_problem(extra_dictionary)
@@ -222,12 +222,12 @@ async def run_contest(message):
             contest_problem_num = int(cmds)
             break
     if contest_problem_num > 50:
-        await message.channel.send(str(contest_problem_num) + '問はちょっと多くない？50問にしますね。')
+        await message.channel.send('{}問はちょっと多くない？50問にしますね。'.format(contest_problem_num))
         contest_problem_num = 50
     if contest_problem_num <= 0:
-        await message.channel.send(str(contest_problem_num) + '問の出題はできません。1問にしますね。')
+        await message.channel.send('{}問の出題はできません。1問にしますね。'.format(contest_problem_num))
         contest_problem_num = 1
-    await message.channel.send(str(contest_problem_num) + '問連続で出題します。')
+    await message.channel.send('{}問連続で出題します。'.format(contest_problem_num))
     await run_question(message)
 
 # 問題解決処理後にコンテスト中なら出題を続行する
@@ -259,7 +259,7 @@ async def run_unrated(message):
     global contest_solving
     global contest_problem_num
     global contest_solving_num
-    await message.channel.send(str(contest_problem_num) + '問連続の出題を中止します。')
+    await message.channel.send('{}問連続の出題を中止します。'.format(contest_problem_num))
     contest_solving_num = contest_problem_num
     contest_solving = False
     await run_giveup(message)
@@ -281,16 +281,14 @@ async def run_giveup(message):
     global answer
     global others
     if question_solving:
-        response = '正解は\"' + answer + '\"でした...'
-        await message.channel.send(response)
+        await message.channel.send('正解は"{}"でした...'.format(answer))
         question_solving = False
         problem = ''
         answer = ''
         others = []
         await contest_continue(message)
     else:
-        response = '現在問題は出されていません'
-        await message.channel.send(response)
+        await message.channel.send('現在問題は出されていません')
 
 # 問題のヒントを出すコマンドのパース
 def cmd_hint(cmd):
@@ -314,13 +312,12 @@ async def run_hint(message):
             hint_length = int(cmds)
             break
     #await message.channel.send(str(hint_length) + '文字ヒント:', end='');
-    await message.channel.send(str(hint_length) + '文字ヒント:')
+    await message.channel.send('{}文字ヒント:'.format(hint_length))
     if hint_length >= len(answer):
         await message.channel.send('答えが知りたい場合は -giveup を使用して下さい。')
         return
     if question_solving:
-        response = '答えの先頭' + str(hint_length) + '文字は\"' + answer[0:hint_length] + '\"です'
-        await message.channel.send(response)
+        await message.channel.send('答えの先頭{}文字は"{}"です'.format(hint_length, answer[0:hint_length]))
 
 # bot の状態を初期化するコマンドのパース
 def cmd_reset(cmd):
@@ -379,7 +376,7 @@ async def on_message(message):
         global others
         if len(message.mentions) == 0 and question_solving and len(message.content) == len(problem):
             if message.content == answer:
-                response = str(message.author) + ' さん、正解です！\n' + '正解は\"' + answer + '\"でした！'
+                response = '{} さん、正解です！\n正解は "{}" でした！'.format(message.author, answer)
                 await message.channel.send(response)
                 question_solving = False
                 problem = ''
@@ -390,7 +387,7 @@ async def on_message(message):
                 print('accept answer ' + message.content)
                 others.append(message.content)
                 if [message.content, problem] in dictionary:
-                    response = str(message.author) + ' さん、 \"' + message.content + '\" は非想定解ですが正解です！'
+                    response = '{} さん、 "{}" は非想定解ですが正解です！'.format(message.author, message.content)
                     await message.channel.send(response)
         lock.release()
         return 
